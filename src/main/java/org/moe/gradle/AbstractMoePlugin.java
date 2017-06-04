@@ -114,8 +114,9 @@ public abstract class AbstractMoePlugin implements Plugin<Project> {
     private void checkGradleVersion(Project project) {
         final String version = project.getGradle().getGradleVersion();
         final String[] components = version.split("\\.");
+        final String[] minorComponents = components[1].split("-");
         final int major = Integer.parseInt(components[0 /* Major */]);
-        final int minor = Integer.parseInt(components[1 /* Minor */]);
+        final int minor = Integer.parseInt(minorComponents[0 /* Minor */]);
         if (major > GRADLE_MIN_VERSION_MAJOR ||
                 (major == GRADLE_MIN_VERSION_MAJOR && minor >= GRADLE_MIN_VERSION_MINOR)) {
             return;
