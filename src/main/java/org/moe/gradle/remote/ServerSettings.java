@@ -565,7 +565,7 @@ class ServerSettings {
         final String identity = get(IDENTITY_KEY);
         if (identity != null) {
             final File file = getFileWithProperty(project, identity);
-            jsch.addIdentity(file.getAbsolutePath());
+            jsch.addIdentity(file.getAbsolutePath(), getKeychainPass());
         }
 
         return jsch;
