@@ -423,25 +423,26 @@ public class XcodeBuild extends AbstractBaseTask {
                 final Dex2Oat dex2OatTask = xcodeProvider.getDex2OatTaskDep();
                 excludes.add(dex2OatTask.getLogFile());
 
-                final Dex dexTask = dex2OatTask.getDexTaskDep();
-                excludes.add(dexTask.getDestJar());
-                excludes.add(dexTask.getLogFile());
+                // TODO: 06.04.22 FIIIXE!! 
 
-                final ClassValidate classValidateTask = dexTask.getClassValidateTaskDep();
+                final ClassValidate classValidateTask = nativeImageTask.getClassValidateTaskDep();
                 excludes.add(classValidateTask.getOutputDir());
                 excludes.add(classValidateTask.getLogFile());
 
-                final Desugar desugarTask = classValidateTask.getDesugarTaskDep();
-                excludes.add(desugarTask.getOutJar());
-                excludes.add(desugarTask.getComposedCfgFile());
-                excludes.add(desugarTask.getLogFile());
+                final ReflectionCollect reflectionCollectTask = nativeImageTask.getReflectionCollectTaskDep();
+                excludes.add(reflectionCollectTask.getOutputDir());
+                excludes.add(reflectionCollectTask.getLogFile());
 
-                final ProGuard proGuardTask = desugarTask.getProGuardTaskDep();
+                final ProGuard proGuardTask = classValidateTask.getProGuardTaskDep();
                 excludes.add(proGuardTask.getOutJar());
                 excludes.add(proGuardTask.getComposedCfgFile());
                 excludes.add(proGuardTask.getLogFile());
 
-                final JavaCompile classesTask = proGuardTask.getJavaCompileTaskDep();
+                final ClassValidate classValidateTask = proGuardTask.getClassValidateTaskDep();
+                excludes.add(classValidateTask.getOutputDir());
+                excludes.add(classValidateTask.getLogFile());
+
+                final JavaCompile classesTask = classValidateTask.getJavaCompileTaskDep();
                 if (classesTask != null) {
                     excludes.add(classesTask.getDestinationDir());
                 }

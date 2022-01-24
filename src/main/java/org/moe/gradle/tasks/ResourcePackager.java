@@ -92,13 +92,10 @@ public class ResourcePackager {
         resourcePackagerTask.setGroup(MoePlugin.MOE);
         resourcePackagerTask.setDescription("Generates application file (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
-        // Add dependencies
-        final ProGuard proguardTask = plugin.getTaskBy(ProGuard.class, sourceSet, mode);
-        resourcePackagerTask.dependsOn(proguardTask);
-
         // Update settings
         resourcePackagerTask.setDestinationDir(project.file(project.getBuildDir().toPath().resolve(out).toFile()));
         resourcePackagerTask.setArchiveName("application.jar");
+        // TODO: 06.04.2022 FIX Resource packaging
         resourcePackagerTask.from(project.zipTree(proguardTask.getOutJar()));
         resourcePackagerTask.exclude("**/*.class");
 

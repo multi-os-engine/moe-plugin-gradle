@@ -147,9 +147,15 @@ public abstract class AbstractBaseTask extends DefaultTask {
     }
 
     @SuppressWarnings("unchecked")
-    @NotNull
     @org.jetbrains.annotations.NotNull
-    public <T> T getOrConvention(@Nullable T value, @NotNull String name) {
+    @NotNull
+    public <T> T getOrConvention(
+        @org.jetbrains.annotations.Nullable
+        @Nullable
+            T value,
+        @org.jetbrains.annotations.NotNull
+        @NotNull
+            String name) {
         Require.nonNull(name);
 
         if (value == null) {
@@ -167,7 +173,13 @@ public abstract class AbstractBaseTask extends DefaultTask {
     @SuppressWarnings("unchecked")
     @Nullable
     @org.jetbrains.annotations.Nullable
-    public <T> T nullableGetOrConvention(@Nullable T value, @NotNull String name) {
+    public <T> T nullableGetOrConvention(
+        @org.jetbrains.annotations.Nullable
+        @Nullable
+            T value,
+        @org.jetbrains.annotations.NotNull
+        @NotNull
+            String name) {
         Require.nonNull(name);
 
         if (value == null) {
