@@ -310,12 +310,12 @@ public class Dex2Oat extends AbstractBaseTask {
         }
     }
 
-    private Dex dexTaskDep;
+    private ProGuard proGuardTaskDep;
 
     @NotNull
     @Internal
-    public Dex getDexTaskDep() {
-        return Require.nonNull(dexTaskDep);
+    public ProGuard getDexTaskDep() {
+        return Require.nonNull(proGuardTaskDep);
     }
 
     @NotNull
@@ -335,9 +335,9 @@ public class Dex2Oat extends AbstractBaseTask {
                 ", arch-family: " + archFamily + ").");
 
         // Add dependencies
-        final Dex dexTask = getMoePlugin().getTaskBy(Dex.class, sourceSet, mode);
-        dexTaskDep = dexTask;
-        dependsOn(dexTask);
+        final ProGuard proGuardTask = getMoePlugin().getTaskBy(ProGuard.class, sourceSet, mode);
+        proGuardTaskDep = proGuardTask;
+        dependsOn(proGuardTask);
 
         // Update convention mapping
         addConvention(CONVENTION_DEX2OAT_EXEC, sdk::getDex2OatExec);
@@ -359,7 +359,7 @@ public class Dex2Oat extends AbstractBaseTask {
         addConvention(CONVENTION_EMIT_DEBUG_INFO, () -> mode == Mode.DEBUG);
         addConvention(CONVENTION_INPUT_FILES, () -> {
             final Set<File> files = new HashSet<>();
-            files.add(dexTask.getDestJar());
+            files.add(proGuardTask.getOutJar());
             return files;
         });
         addConvention(CONVENTION_COMPILER_BACKEND, () -> BACKEND_QUICK);

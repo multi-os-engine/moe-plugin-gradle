@@ -50,6 +50,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -260,9 +262,12 @@ public class ProGuard extends AbstractBaseTask {
         }
 
         composeConfigurationFile();
+        ArrayList<Object> args = new ArrayList<>(Arrays.asList(getProGuardJar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
+        args.addAll(Arrays.asList(getInJars().getFiles().stream().map(File::getAbsolutePath).toArray()));
+        //args.addAll(Arrays.asList("--pg-conf", getComposedCfgFile().getAbsolutePath()));
         javaexec(spec -> {
             spec.setMain("-jar");
-            spec.args(getProGuardJar().getAbsolutePath(), "@" + getComposedCfgFile().getAbsolutePath());
+            spec.args(args.toArray());
         });
     }
 
@@ -450,10 +455,11 @@ public class ProGuard extends AbstractBaseTask {
         addConvention(CONVENTION_IN_JARS, () -> {
             final HashSet<Object> jars = new LinkedHashSet<>();
             jars.add(classValidateTask.getClassesOutputDir());
-            jars.addAll(classValidateTask.getInputFiles().getFiles());
+            jars.add(getMoeSDK().getCoreJar());
+            jars.add(getMoeExtension().getPlatformJar());
 
             // Java 8 Support jar should always be included in the library jars
-            jars.remove(sdk.getJava8SupportJar());
+            //jars.add(sdk.getJava8SupportJar());
 
             return jars;
         });
@@ -462,13 +468,9 @@ public class ProGuard extends AbstractBaseTask {
             final HashSet<Object> jars = new LinkedHashSet<>(
                 // Make JDK runtime libraries available for ProGuard
                 // because we no longer have all basic runtime classes in core jar.
-                getMoePlugin().getGraalVM().getRuntimeLibraries()
             );
-            jars.addAll(classValidateTask.getClasspathFiles().getFiles());
-
-            if (!project.hasProperty("moe.sdk.skip_java8support_jar")) {
-                jars.add(sdk.getJava8SupportJar());
-            }
+            jars.add(getMoeSDK().getCoreJar());
+            jars.add(getMoeExtension().getPlatformJar());
 
             return jars;
         });

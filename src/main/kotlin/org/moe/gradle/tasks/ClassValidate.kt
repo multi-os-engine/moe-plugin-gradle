@@ -65,7 +65,7 @@ open class ClassValidate : AbstractBaseTask() {
 
     val classesOutputDir: File
         @Internal
-        get() = getOutputDir().resolve(ClassValidator.OUTPUT_CLASSES)
+        get() = getOutputDir().resolve("output.jar")
 
     override fun run() {
         // Clean output dir

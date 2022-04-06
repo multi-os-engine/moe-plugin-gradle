@@ -96,7 +96,7 @@ public class ResourcePackager {
         resourcePackagerTask.setDestinationDir(project.file(project.getBuildDir().toPath().resolve(out).toFile()));
         resourcePackagerTask.setArchiveName("application.jar");
         // TODO: 06.04.2022 FIX Resource packaging
-        resourcePackagerTask.from(project.zipTree(proguardTask.getOutJar()));
+        //resourcePackagerTask.from(project.zipTree(proguardTask.getOutJar()));
         resourcePackagerTask.exclude("**/*.class");
 
         project.afterEvaluate(_project -> {
