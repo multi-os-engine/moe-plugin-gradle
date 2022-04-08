@@ -263,8 +263,8 @@ public class ProGuard extends AbstractBaseTask {
 
         composeConfigurationFile();
         ArrayList<Object> args = new ArrayList<>(Arrays.asList(getProGuardJar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
-        args.addAll(Arrays.asList(getInJars().getFiles().stream().map(File::getAbsolutePath).toArray()));
-        //args.addAll(Arrays.asList("--pg-conf", getComposedCfgFile().getAbsolutePath()));
+        //args.addAll(Arrays.asList(getInJars().getFiles().stream().map(File::getAbsolutePath).toArray()));
+        args.addAll(Arrays.asList("--pg-conf", getComposedCfgFile().getAbsolutePath()));
         javaexec(spec -> {
             spec.setMain("-jar");
             spec.args(args.toArray());
@@ -469,9 +469,9 @@ public class ProGuard extends AbstractBaseTask {
                 // Make JDK runtime libraries available for ProGuard
                 // because we no longer have all basic runtime classes in core jar.
             );
-            jars.add(getMoeSDK().getCoreJar());
-            jars.add(getMoeExtension().getPlatformJar());
-
+            //jars.add(getMoeSDK().getCoreJar());
+            //jars.add(getMoeExtension().getPlatformJar());
+            jars.add(sdk.getJava8SupportJar());
             return jars;
         });
         addConvention(CONVENTION_OUT_JAR, () -> resolvePathInBuildDir(out, "output.jar"));

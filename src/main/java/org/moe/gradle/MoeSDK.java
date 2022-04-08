@@ -374,7 +374,7 @@ public class MoeSDK {
             validate(FIL, path, "tools/preloaded-classes");
             validate(FIL, path, "tools/proguard-full.cfg");
             validate(FIL, path, "tools/proguard.cfg");
-            validate(FIL, path, "tools/d8.jar");
+            validate(FIL, path, "tools/r8.jar");
             validate(DIR, path, "tools/windows/x86_64");
             validate(FIL, path, "tools/wrapnatjgen.jar");
             validate(FIL, path, "tools/gradlew.zip");
@@ -450,7 +450,7 @@ public class MoeSDK {
         MOE_SDK_PRELOADEDCLASSES_FILE = path.resolve("tools/preloaded-classes").toFile();
         MOE_SDK_PROGUARDFULL_CFG = path.resolve("tools/proguard-full.cfg").toFile();
         MOE_SDK_PROGUARD_CFG = path.resolve("tools/proguard.cfg").toFile();
-        MOE_SDK_PROGUARD_JAR = path.resolve("tools/d8.jar").toFile();
+        MOE_SDK_PROGUARD_JAR = path.resolve("tools/r8.jar").toFile();
         MOE_SDK_WINDOWS_X86_64_SUPPORT = path.resolve("tools/windows/x86_64").toFile();
         MOE_SDK_NATJGEN_JAR = path.resolve("tools/wrapnatjgen.jar").toFile();
         MOE_SDK_GRADLEW_ZIP = path.resolve("tools/gradlew.zip").toFile();
