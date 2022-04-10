@@ -57,9 +57,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class ProGuard extends AbstractBaseTask {
+public class R8 extends AbstractBaseTask {
 
-    private static final Logger LOG = Logging.getLogger(ProGuard.class);
+    private static final Logger LOG = Logging.getLogger(R8.class);
 
     private static final String CONVENTION_PROGUARD_JAR = "proGuardJar";
     private static final String CONVENTION_BASE_CFG_FILE = "baseCfgFile";
@@ -434,7 +434,7 @@ public class ProGuard extends AbstractBaseTask {
             switch (ext.proguard.getLevelRaw()) {
                 case ProGuardOptions.LEVEL_APP:
                 case ProGuardOptions.LEVEL_PLATFORM:
-                    return sdk.getProguardCfg();
+                    return sdk.getProguardFullCfg();
                 case ProGuardOptions.LEVEL_ALL:
                     return sdk.getProguardFullCfg();
                 default:

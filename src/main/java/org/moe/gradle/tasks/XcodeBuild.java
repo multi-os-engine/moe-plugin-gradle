@@ -423,12 +423,12 @@ public class XcodeBuild extends AbstractBaseTask {
                 final Dex2Oat dex2OatTask = xcodeProvider.getDex2OatTaskDep();
                 excludes.add(dex2OatTask.getLogFile());
 
-                final ProGuard proGuardTask = dex2OatTask.getDexTaskDep();
-                excludes.add(proGuardTask.getOutJar());
-                excludes.add(proGuardTask.getComposedCfgFile());
-                excludes.add(proGuardTask.getLogFile());
+                final R8 r8Task = dex2OatTask.getR8TaskDep();
+                excludes.add(r8Task.getOutJar());
+                excludes.add(r8Task.getComposedCfgFile());
+                excludes.add(r8Task.getLogFile());
 
-                final ClassValidate classValidateTask = proGuardTask.getClassValidateTaskDep();
+                final ClassValidate classValidateTask = r8Task.getClassValidateTaskDep();
                 excludes.add(classValidateTask.getOutputDir());
                 excludes.add(classValidateTask.getLogFile());
 
