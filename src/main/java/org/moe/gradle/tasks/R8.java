@@ -61,7 +61,7 @@ public class R8 extends AbstractBaseTask {
 
     private static final Logger LOG = Logging.getLogger(R8.class);
 
-    private static final String CONVENTION_PROGUARD_JAR = "proGuardJar";
+    private static final String CONVENTION_R8_JAR = "r8Jar";
     private static final String CONVENTION_BASE_CFG_FILE = "baseCfgFile";
     private static final String CONVENTION_APPEND_CFG_FILE = "appendCfgFile";
     private static final String CONVENTION_IN_JARS = "inJars";
@@ -74,17 +74,17 @@ public class R8 extends AbstractBaseTask {
     private static final String CONVENTION_OBFUSCATION_ENABLED = "obfuscationEnabled";
 
     @Nullable
-    private Object proGuardJar;
+    private Object r8Jar;
 
     @InputFile
     @NotNull
-    public File getProGuardJar() {
-        return getProject().file(getOrConvention(proGuardJar, CONVENTION_PROGUARD_JAR));
+    public File getR8Jar() {
+        return getProject().file(getOrConvention(r8Jar, CONVENTION_R8_JAR));
     }
 
     @IgnoreUnused
-    public void setProGuardJar(@Nullable Object proGuardJar) {
-        this.proGuardJar = proGuardJar;
+    public void setR8Jar(@Nullable Object r8Jar) {
+        this.r8Jar = r8Jar;
     }
 
     @Nullable
@@ -262,9 +262,10 @@ public class R8 extends AbstractBaseTask {
         }
 
         composeConfigurationFile();
-        ArrayList<Object> args = new ArrayList<>(Arrays.asList(getProGuardJar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
+        ArrayList<Object> args = new ArrayList<>(Arrays.asList(getR8Jar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
         //args.addAll(Arrays.asList(getInJars().getFiles().stream().map(File::getAbsolutePath).toArray()));
         args.addAll(Arrays.asList("--pg-compat", "--pg-conf", getComposedCfgFile().getAbsolutePath()));
+        //if ()
         javaexec(spec -> {
             spec.setMain("-jar");
             spec.args(args.toArray());
@@ -412,16 +413,16 @@ public class R8 extends AbstractBaseTask {
         final MoeSDK sdk = getMoeSDK();
 
         // Construct default output path
-        final Path out = Paths.get(MoePlugin.MOE, sourceSet.getName(), "proguard", mode.name);
+        final Path out = Paths.get(MoePlugin.MOE, sourceSet.getName(), "r8", mode.name);
 
-        setDescription("Generates ProGuarded jar files (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
+        setDescription("Generates dexed and shrinked jar files (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
         // Add dependencies
         final ClassValidate classValidateTask = getMoePlugin().getTaskBy(ClassValidate.class, sourceSet, mode);
         classValidateTaskDep = classValidateTask;
         dependsOn(classValidateTask);
 
-        addConvention(CONVENTION_PROGUARD_JAR, sdk::getProGuardJar);
+        addConvention(CONVENTION_R8_JAR, sdk::getR8Jar);
         addConvention(CONVENTION_BASE_CFG_FILE, () -> {
             if (ext.proguard.getBaseCfgFile() != null) {
                 return ext.proguard.getBaseCfgFile();
@@ -477,7 +478,7 @@ public class R8 extends AbstractBaseTask {
         addConvention(CONVENTION_OUT_JAR, () -> resolvePathInBuildDir(out, "output.jar"));
         addConvention(CONVENTION_COMPOSED_CFG_FILE, () -> resolvePathInBuildDir(out, "configuration.pro"));
         addConvention(CONVENTION_MAPPING_FILE, () -> isCustomisedBaseConfig() || !isObfuscationEnabled() ? null : resolvePathInBuildDir(out, "mapping.txt"));
-        addConvention(CONVENTION_LOG_FILE, () -> resolvePathInBuildDir(out, "ProGuard.log"));
+        addConvention(CONVENTION_LOG_FILE, () -> resolvePathInBuildDir(out, "R8.log"));
         addConvention(CONVENTION_MINIFY_ENABLED, ext.proguard::isMinifyEnabled);
         addConvention(CONVENTION_OBFUSCATION_ENABLED, ext.proguard::isObfuscationEnabled);
     }

@@ -134,7 +134,7 @@ public class MoePlugin extends AbstractMoePlugin {
         installCommonDependencies();
 
         // Install rules
-        addRule(R8.class, "Creates a ProGuarded jar.",
+        addRule(R8.class, "Shrinks/obfuscates app and produces dex files.",
                 asList(SOURCE_SET, MODE), MoePlugin.this);
         addRule(ClassValidate.class, "Validate classes.",
                 asList(SOURCE_SET, MODE), MoePlugin.this);

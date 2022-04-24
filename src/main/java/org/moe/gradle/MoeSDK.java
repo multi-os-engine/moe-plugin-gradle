@@ -424,7 +424,7 @@ public class MoeSDK {
     private @Nullable File MOE_SDK_PRELOADEDCLASSES_FILE;
     private @Nullable File MOE_SDK_PROGUARDFULL_CFG;
     private @Nullable File MOE_SDK_PROGUARD_CFG;
-    private @Nullable File MOE_SDK_PROGUARD_JAR;
+    private @Nullable File MOE_SDK_R8_JAR;
     private @Nullable File MOE_SDK_WINDOWS_X86_64_SUPPORT;
     private @Nullable File MOE_SDK_NATJGEN_JAR;
     private @Nullable File MOE_SDK_GRADLEW_ZIP;
@@ -450,7 +450,7 @@ public class MoeSDK {
         MOE_SDK_PRELOADEDCLASSES_FILE = path.resolve("tools/preloaded-classes").toFile();
         MOE_SDK_PROGUARDFULL_CFG = path.resolve("tools/proguard-full.cfg").toFile();
         MOE_SDK_PROGUARD_CFG = path.resolve("tools/proguard.cfg").toFile();
-        MOE_SDK_PROGUARD_JAR = path.resolve("tools/r8.jar").toFile();
+        MOE_SDK_R8_JAR = path.resolve("tools/r8.jar").toFile();
         MOE_SDK_WINDOWS_X86_64_SUPPORT = path.resolve("tools/windows/x86_64").toFile();
         MOE_SDK_NATJGEN_JAR = path.resolve("tools/wrapnatjgen.jar").toFile();
         MOE_SDK_GRADLEW_ZIP = path.resolve("tools/gradlew.zip").toFile();
@@ -565,8 +565,8 @@ public class MoeSDK {
     }
 
     @NotNull
-    public File getProGuardJar() {
-        return safeVariable(MOE_SDK_PROGUARD_JAR, "MOE_SDK_PROGUARD_JAR");
+    public File getR8Jar() {
+        return safeVariable(MOE_SDK_R8_JAR, "MOE_SDK_R8_JAR");
     }
 
     @NotNull
