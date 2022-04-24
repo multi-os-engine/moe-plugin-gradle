@@ -92,15 +92,24 @@ public class ResourcePackager {
         resourcePackagerTask.setGroup(MoePlugin.MOE);
         resourcePackagerTask.setDescription("Generates application file (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
+        final ClassValidate r8Task = plugin.getTaskBy(ClassValidate.class, sourceSet, mode);
+        resourcePackagerTask.dependsOn(r8Task);
         // Update settings
         resourcePackagerTask.setDestinationDir(project.file(project.getBuildDir().toPath().resolve(out).toFile()));
         resourcePackagerTask.setArchiveName("application.jar");
         // TODO: 06.04.2022 FIX Resource packaging
-        //resourcePackagerTask.from(project.zipTree(proguardTask.getOutJar()));
+
         resourcePackagerTask.exclude("**/*.class");
 
         project.afterEvaluate(_project -> {
             // When using full trim, ProGuard will copy the the resources from the common jar
+            r8Task.getInputFiles().forEach(e -> {
+                if (e.isDirectory()) {
+                    resourcePackagerTask.from(e);
+                } else if (e.exists()){
+                    resourcePackagerTask.from(project.zipTree(e));
+                }
+            });
             switch (ext.proguard.getLevelRaw()) {
                 case ProGuardOptions.LEVEL_APP:
                     resourcePackagerTask.from(_project.zipTree(sdk.getCoreJar()));
