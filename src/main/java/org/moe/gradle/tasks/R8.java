@@ -264,7 +264,7 @@ public class R8 extends AbstractBaseTask {
         composeConfigurationFile();
         ArrayList<Object> args = new ArrayList<>(Arrays.asList(getProGuardJar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
         //args.addAll(Arrays.asList(getInJars().getFiles().stream().map(File::getAbsolutePath).toArray()));
-        args.addAll(Arrays.asList("--pg-conf", getComposedCfgFile().getAbsolutePath()));
+        args.addAll(Arrays.asList("--pg-compat", "--pg-conf", getComposedCfgFile().getAbsolutePath()));
         javaexec(spec -> {
             spec.setMain("-jar");
             spec.args(args.toArray());
