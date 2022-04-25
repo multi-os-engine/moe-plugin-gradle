@@ -164,7 +164,7 @@ public class StartupProvider extends AbstractBaseTask {
         // Update convention mapping
         addConvention(CONVENTION_INPUT_FILES, () -> {
             final Set<File> files = new HashSet<>();
-            files.add(classValidateTask.getClassesOutputDir());
+            files.add(classValidateTask.getOutputJar());
             return files;
         });
         addConvention(CONVENTION_PREREGISTER_FILE, () -> resolvePathInBuildDir(out, "preregister.txt"));

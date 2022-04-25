@@ -63,7 +63,7 @@ open class ClassValidate : AbstractBaseTask() {
         this.outputDir = outputDir
     }
 
-    val classesOutputDir: File
+    val outputJar: File
         @Internal
         get() = getOutputDir().resolve("output.jar")
 

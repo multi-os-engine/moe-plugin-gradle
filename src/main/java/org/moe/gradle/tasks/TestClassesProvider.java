@@ -401,7 +401,7 @@ public class TestClassesProvider extends AbstractBaseTask {
         }
 
         // Update convention mapping
-        addConvention(CONVENTION_INPUT_FILES, () -> Collections.singletonList(classValidateTask.getClassesOutputDir()));
+        addConvention(CONVENTION_INPUT_FILES, () -> Collections.singletonList(classValidateTask.getOutputJar()));
         addConvention(CONVENTION_CLASS_LIST_FILE, () -> resolvePathInBuildDir(out, "classlist.txt"));
         addConvention(CONVENTION_LOG_FILE, () -> resolvePathInBuildDir(out, "TestClassesProvider.log"));
     }

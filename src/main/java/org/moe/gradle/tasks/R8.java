@@ -455,7 +455,7 @@ public class R8 extends AbstractBaseTask {
         });
         addConvention(CONVENTION_IN_JARS, () -> {
             final HashSet<Object> jars = new LinkedHashSet<>();
-            jars.add(classValidateTask.getClassesOutputDir());
+            jars.add(classValidateTask.getOutputJar());
             jars.add(getMoeSDK().getCoreJar());
             jars.add(getMoeExtension().getPlatformJar());
 
