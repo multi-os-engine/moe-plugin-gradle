@@ -140,25 +140,9 @@ open class ClassValidate : AbstractBaseTask() {
         // Update convention mapping
         addConvention(CONVENTION_INPUT_FILES) {
             sourceSet.runtimeClasspath.files.toMutableSet().also { jars ->
-
                 jars.remove(moeSDK.coreJar)
                 jars.remove(moeExtension.platformJar)
-
-                when (moeExtension.proguard.levelRaw) {
-                    ProGuardOptions.LEVEL_APP -> {
-                        jars.remove(moeSDK.coreJar)
-                        moeExtension.platformJar?.let(jars::remove)
-                    }
-                    ProGuardOptions.LEVEL_PLATFORM -> {
-                        jars.remove(moeSDK.coreJar)
-                        moeExtension.platformJar?.let(jars::add)
-                    }
-                    ProGuardOptions.LEVEL_ALL -> {
-                        jars.add(moeSDK.coreJar)
-                        moeExtension.platformJar?.let(jars::add)
-                    }
-                    else -> throw IllegalStateException()
-                }
+                jars.remove(moeSDK.java8SupportJar)
             }
         }
         addConvention(CONVENTION_CLASSPATH_FILES) {

@@ -459,8 +459,7 @@ public class R8 extends AbstractBaseTask {
             jars.add(getMoeSDK().getCoreJar());
             jars.add(getMoeExtension().getPlatformJar());
 
-            // Java 8 Support jar should always be included in the library jars
-            //jars.add(sdk.getJava8SupportJar());
+            jars.add(sdk.getJava8SupportJar());
 
             return jars;
         });
@@ -472,7 +471,7 @@ public class R8 extends AbstractBaseTask {
             );
             //jars.add(getMoeSDK().getCoreJar());
             //jars.add(getMoeExtension().getPlatformJar());
-            jars.add(sdk.getJava8SupportJar());
+            //jars.add(sdk.getJava8SupportJar());
             return jars;
         });
         addConvention(CONVENTION_OUT_JAR, () -> resolvePathInBuildDir(out, "output.jar"));
