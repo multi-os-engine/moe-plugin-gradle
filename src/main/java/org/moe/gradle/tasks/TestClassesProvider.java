@@ -370,13 +370,13 @@ public class TestClassesProvider extends AbstractBaseTask {
         }
     }
 
-    private R8 r8TaskDep;
+    private ClassValidate classValidateTaskDep;
 
     @NotNull
     @IgnoreUnused
     @Internal
-    public R8 getR8TaskDep() {
-        return Require.nonNull(r8TaskDep);
+    public ClassValidate getClassValidateTaskDep() {
+        return Require.nonNull(classValidateTaskDep);
     }
 
     protected final void setupMoeTask(@NotNull SourceSet sourceSet, final @NotNull Mode mode) {
@@ -391,9 +391,9 @@ public class TestClassesProvider extends AbstractBaseTask {
         setDescription("Generates classlist.txt file (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
         // Add dependencies
-        final R8 r8Task = getMoePlugin().getTaskBy(R8.class, sourceSet, mode);
-        r8TaskDep = r8Task;
-        dependsOn(r8Task);
+        final ClassValidate classValidateTask = getMoePlugin().getTaskBy(ClassValidate.class, sourceSet, mode);
+        classValidateTaskDep = classValidateTask;
+        dependsOn(classValidateTask);
 
         if (!SourceSet.MAIN_SOURCE_SET_NAME.equals(sourceSet.getName())
                 && !SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
@@ -401,7 +401,7 @@ public class TestClassesProvider extends AbstractBaseTask {
         }
 
         // Update convention mapping
-        addConvention(CONVENTION_INPUT_FILES, () -> Collections.singletonList(r8Task.getOutJar()));
+        addConvention(CONVENTION_INPUT_FILES, () -> Collections.singletonList(classValidateTask.getClassesOutputDir()));
         addConvention(CONVENTION_CLASS_LIST_FILE, () -> resolvePathInBuildDir(out, "classlist.txt"));
         addConvention(CONVENTION_LOG_FILE, () -> resolvePathInBuildDir(out, "TestClassesProvider.log"));
     }
