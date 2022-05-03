@@ -72,6 +72,7 @@ public class R8 extends AbstractBaseTask {
     private static final String CONVENTION_MAPPING_FILE = "mappingFile";
     private static final String CONVENTION_MINIFY_ENABLED = "minifyEnabled";
     private static final String CONVENTION_OBFUSCATION_ENABLED = "obfuscationEnabled";
+    private static final String CONVENTION_DEBUG_ENABLED = "debugEnabled";
 
     @Nullable
     private Object r8Jar;
@@ -229,6 +230,19 @@ public class R8 extends AbstractBaseTask {
     }
 
     @Nullable
+    private Boolean debugEnabled;
+
+    @IgnoreUnused
+    public void setDebugEnabled(Boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
+
+    @Input
+    public boolean isDebugEnabled() {
+        return getOrConvention(debugEnabled, CONVENTION_DEBUG_ENABLED);
+    }
+
+    @Nullable
     private Object mappingFile;
 
     @OutputFile
@@ -263,9 +277,12 @@ public class R8 extends AbstractBaseTask {
 
         composeConfigurationFile();
         ArrayList<Object> args = new ArrayList<>(Arrays.asList(getR8Jar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
-        //args.addAll(Arrays.asList(getInJars().getFiles().stream().map(File::getAbsolutePath).toArray()));
         args.addAll(Arrays.asList("--pg-compat", "--pg-conf", getComposedCfgFile().getAbsolutePath()));
-        //if ()
+        if (isDebugEnabled()) {
+            args.add("--debug");
+        } else {
+            args.add("--release");
+        }
         javaexec(spec -> {
             spec.setMain("-jar");
             spec.args(args.toArray());
@@ -480,5 +497,6 @@ public class R8 extends AbstractBaseTask {
         addConvention(CONVENTION_LOG_FILE, () -> resolvePathInBuildDir(out, "R8.log"));
         addConvention(CONVENTION_MINIFY_ENABLED, ext.proguard::isMinifyEnabled);
         addConvention(CONVENTION_OBFUSCATION_ENABLED, ext.proguard::isObfuscationEnabled);
+        addConvention(CONVENTION_DEBUG_ENABLED, () -> mode.equals(Mode.DEBUG));
     }
 }
