@@ -99,9 +99,10 @@ public class ResourcePackager {
         resourcePackagerTask.setArchiveName("application.jar");
 
         resourcePackagerTask.exclude("**/*.class");
+        resourcePackagerTask.setIncludeEmptyDirs(false);
 
-        project.afterEvaluate(_project -> {
-            // When using full trim, ProGuard will copy the the resources from the common jar
+        // When using full trim, ProGuard will copy the the resources from the common jar
+        project.afterEvaluate(p -> {
             validateTask.getInputFiles().forEach(e -> {
                 if (e.isDirectory()) {
                     resourcePackagerTask.from(e);
@@ -109,31 +110,32 @@ public class ResourcePackager {
                     resourcePackagerTask.from(project.zipTree(e));
                 }
             });
-            switch (ext.proguard.getLevelRaw()) {
-                case ProGuardOptions.LEVEL_APP:
-                    resourcePackagerTask.from(_project.zipTree(sdk.getCoreJar()));
-                    if (ext.getPlatformJar() != null){
-                        resourcePackagerTask.from(_project.zipTree(ext.getPlatformJar()));
-                    }
-                    break;
-                case ProGuardOptions.LEVEL_PLATFORM:
-                    resourcePackagerTask.from(_project.zipTree(sdk.getCoreJar()));
-                    break;
-                case ProGuardOptions.LEVEL_ALL:
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
-
-            ext.packaging.getExcludes().forEach(resourcePackagerTask::exclude);
-
-            // Add support for copying resources from the source directory
-            addResourceFromSources(ext, resourcePackagerTask, sourceSet);
-            if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
-                SourceSet main = plugin.getJavaConvention().getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-                addResourceFromSources(ext, resourcePackagerTask, main);
-            }
         });
+
+        switch (ext.proguard.getLevelRaw()) {
+            case ProGuardOptions.LEVEL_APP:
+                resourcePackagerTask.from(project.zipTree(sdk.getCoreJar()));
+                if (ext.getPlatformJar() != null){
+                    resourcePackagerTask.from(project.zipTree(ext.getPlatformJar()));
+                }
+                break;
+            case ProGuardOptions.LEVEL_PLATFORM:
+                resourcePackagerTask.from(project.zipTree(sdk.getCoreJar()));
+                break;
+            case ProGuardOptions.LEVEL_ALL:
+                break;
+            default:
+                throw new IllegalStateException();
+        }
+
+        ext.packaging.getExcludes().forEach(resourcePackagerTask::exclude);
+
+        // Add support for copying resources from the source directory
+        addResourceFromSources(ext, resourcePackagerTask, sourceSet);
+        if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
+            SourceSet main = plugin.getJavaConvention().getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+            addResourceFromSources(ext, resourcePackagerTask, main);
+        }
 
         return resourcePackagerTask;
     }
