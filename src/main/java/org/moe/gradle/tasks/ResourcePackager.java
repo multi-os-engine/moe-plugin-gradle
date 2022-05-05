@@ -103,6 +103,7 @@ public class ResourcePackager {
 
         // When using full trim, ProGuard will copy the the resources from the common jar
         project.afterEvaluate(p -> {
+            // This will fetch all jars from the classpath, therefor we need to do it after dependencie analyzation
             validateTask.getInputFiles().forEach(e -> {
                 if (e.isDirectory()) {
                     resourcePackagerTask.from(e);
