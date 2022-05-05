@@ -147,7 +147,6 @@ public class R8 extends AbstractBaseTask {
     }
 
     @NotNull
-    @Input
     @Internal
     public Collection<String> getComposedExcludeFiles() {
         HashSet<String> result = new LinkedHashSet<>();
