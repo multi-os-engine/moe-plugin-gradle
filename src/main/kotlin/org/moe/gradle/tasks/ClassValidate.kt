@@ -1,7 +1,6 @@
 package org.moe.gradle.tasks
 
 import org.gradle.api.GradleException
-import org.gradle.api.Task
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPlugin
@@ -11,6 +10,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.moe.gradle.MoePlugin
 import org.moe.gradle.anns.IgnoreUnused
@@ -63,26 +63,29 @@ open class ClassValidate : AbstractBaseTask() {
         this.outputDir = outputDir
     }
 
-    val outputJar: File
+    val outputJars: ConfigurableFileCollection
         @Internal
-        get() = getOutputDir().resolve("output.jar")
+        get() = project.files(getOutputDir().listFiles())
 
     override fun run() {
         // Clean output dir
         FileUtils.deleteFileOrFolder(getOutputDir())
 
+        val inputFiles = getInputFiles().filter {it.isFile}.map {
+            it.copyTo(getOutputDir().resolve(it.name))
+        }
+
         // Run class validator
         ClassValidator.process(
-            inputFiles = getInputFiles().toSet(),
+            inputFiles = inputFiles.toSet(),
             classpath = getClasspathFiles().toSet()
                 // Add input to classpath
-                + getInputFiles().toSet(),
-            outputDir = getOutputDir().absoluteFile.toPath(),
+                + inputFiles.toSet()
         )
     }
 
     @get:Internal
-    lateinit var classesTaskDep: Task
+    lateinit var jarTaskDep: Jar
         private set
 
     @get:Internal
@@ -114,19 +117,19 @@ open class ClassValidate : AbstractBaseTask() {
         description = "Validate classes (sourceset: ${sourceSet.name}, mode: ${mode.name})."
 
         // Add dependencies
-        val classesTaskName: String
         val compileJavaTaskName: String
         if (SourceSet.MAIN_SOURCE_SET_NAME == sourceSet.name) {
-            classesTaskName = JavaPlugin.CLASSES_TASK_NAME
+            jarTaskDep = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME) as Jar
             compileJavaTaskName = JavaPlugin.COMPILE_JAVA_TASK_NAME
         } else if (SourceSet.TEST_SOURCE_SET_NAME == sourceSet.name) {
-            classesTaskName = JavaPlugin.TEST_CLASSES_TASK_NAME
+            val testJarTask = project.tasks.register("testJar", Jar::class.java)
+            testJarTask.configure { it.from(sourceSet.output) }
+            jarTaskDep = testJarTask.get();
             compileJavaTaskName = JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME
         } else {
             throw GradleException("Unsupported SourceSet ${sourceSet.name}")
         }
-        classesTaskDep = project.tasks.getByName(classesTaskName)
-        dependsOn(classesTaskDep)
+        dependsOn(jarTaskDep)
 
         javaCompileTaskDep = moePlugin.getTaskByName(compileJavaTaskName)
         // TODO: allow higher than 1.8
@@ -140,6 +143,7 @@ open class ClassValidate : AbstractBaseTask() {
         // Update convention mapping
         addConvention(CONVENTION_INPUT_FILES) {
             sourceSet.runtimeClasspath.files.toMutableSet().also { jars ->
+                jars.add(jarTaskDep.archiveFile.get().asFile)
                 jars.remove(moeSDK.coreJar)
                 jars.remove(moeExtension.platformJar)
                 jars.remove(moeSDK.java8SupportJar)

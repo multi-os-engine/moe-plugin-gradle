@@ -19,6 +19,7 @@ package org.moe.gradle.tasks;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Jar;
 import org.moe.gradle.MoeExtension;
@@ -92,26 +93,18 @@ public class ResourcePackager {
         resourcePackagerTask.setGroup(MoePlugin.MOE);
         resourcePackagerTask.setDescription("Generates application file (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
-        final ClassValidate validateTask = plugin.getTaskBy(ClassValidate.class, sourceSet, mode);
-        resourcePackagerTask.dependsOn(validateTask);
+        final R8 r8Task = plugin.getTaskBy(R8.class, sourceSet, mode);
+        resourcePackagerTask.dependsOn(r8Task);
         // Update settings
         resourcePackagerTask.setDestinationDir(project.file(project.getBuildDir().toPath().resolve(out).toFile()));
         resourcePackagerTask.setArchiveName("application.jar");
 
+        resourcePackagerTask.exclude("*.dex");
         resourcePackagerTask.exclude("**/*.class");
         resourcePackagerTask.setIncludeEmptyDirs(false);
 
-        // When using full trim, ProGuard will copy the the resources from the common jar
-        project.afterEvaluate(p -> {
-            // This will fetch all jars from the classpath, therefor we need to do it after dependencie analyzation
-            validateTask.getInputFiles().forEach(e -> {
-                if (e.isDirectory()) {
-                    resourcePackagerTask.from(e);
-                } else if (e.exists()){
-                    resourcePackagerTask.from(project.zipTree(e));
-                }
-            });
-        });
+        resourcePackagerTask.from(project.zipTree(r8Task.getOutJar()));
+        resourcePackagerTask.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 
         switch (ext.proguard.getLevelRaw()) {
             case ProGuardOptions.LEVEL_APP:
@@ -130,13 +123,6 @@ public class ResourcePackager {
         }
 
         ext.packaging.getExcludes().forEach(resourcePackagerTask::exclude);
-
-        // Add support for copying resources from the source directory
-        addResourceFromSources(ext, resourcePackagerTask, sourceSet);
-        if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
-            SourceSet main = plugin.getJavaConvention().getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-            addResourceFromSources(ext, resourcePackagerTask, main);
-        }
 
         return resourcePackagerTask;
     }
