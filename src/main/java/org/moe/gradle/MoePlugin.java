@@ -28,6 +28,7 @@ import org.moe.gradle.anns.NotNull;
 import org.moe.gradle.anns.Nullable;
 import org.moe.gradle.remote.Server;
 import org.moe.gradle.tasks.AbstractBaseTask;
+import org.moe.gradle.tasks.ProguardCollect;
 import org.moe.gradle.tasks.Dex2Oat;
 import org.moe.gradle.tasks.ClassValidate;
 import org.moe.gradle.tasks.GenerateUIObjCInterfaces;
@@ -136,6 +137,8 @@ public class MoePlugin extends AbstractMoePlugin {
         // Install rules
         addRule(R8.class, "Shrinks/obfuscates app and produces dex files.",
                 asList(SOURCE_SET, MODE), MoePlugin.this);
+        addRule(ProguardCollect.class, "Generate code specific proguard keep configs.",
+               asList(SOURCE_SET, MODE), MoePlugin.this);
         addRule(ClassValidate.class, "Validate classes.",
                 asList(SOURCE_SET, MODE), MoePlugin.this);
         addRule(Dex2Oat.class, "Creates art and oat files.",

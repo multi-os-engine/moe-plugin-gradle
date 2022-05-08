@@ -336,6 +336,10 @@ public class R8 extends AbstractBaseTask {
         startSection(conf, "Appending from " + baseCfgFile);
         conf.append(FileUtils.read(baseCfgFile));
 
+        final File collectedConfig = getProguardCollectTaskDep().getOutCfgFile();
+        startSection(conf, "Appending from " + collectedConfig);
+        conf.append(FileUtils.read(collectedConfig));
+
         startSection(conf, "Shrinking & obfuscation flags");
         if (!isCustomisedBaseConfig()) {
             if (isMinifyEnabled()) {
@@ -419,6 +423,15 @@ public class R8 extends AbstractBaseTask {
         return classValidateTaskDep;
     }
 
+    private ProguardCollect proguardCollectTaskDep;
+
+    @Nullable
+    @IgnoreUnused
+    @Internal
+    public ProguardCollect getProguardCollectTaskDep() {
+        return proguardCollectTaskDep;
+    }
+
     protected final void setupMoeTask(final @NotNull SourceSet sourceSet, final @NotNull Mode mode) {
         Require.nonNull(sourceSet);
 
@@ -437,6 +450,10 @@ public class R8 extends AbstractBaseTask {
         final ClassValidate classValidateTask = getMoePlugin().getTaskBy(ClassValidate.class, sourceSet, mode);
         classValidateTaskDep = classValidateTask;
         dependsOn(classValidateTask);
+
+        final ProguardCollect proguardCollectTask = getMoePlugin().getTaskBy(ProguardCollect.class, sourceSet, mode);
+        proguardCollectTaskDep = proguardCollectTask;
+        dependsOn(proguardCollectTask);
 
         addConvention(CONVENTION_R8_JAR, sdk::getR8Jar);
         addConvention(CONVENTION_BASE_CFG_FILE, () -> {
