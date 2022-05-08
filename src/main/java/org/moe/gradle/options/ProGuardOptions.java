@@ -8,7 +8,6 @@ import org.moe.gradle.utils.Require;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -25,6 +24,7 @@ public class ProGuardOptions {
     private int level = LEVEL_APP;
     private boolean minifyEnabled = true;
     private boolean obfuscationEnabled = false;
+    private boolean proguardCollectorEnabled = true;
     @NotNull
     @org.jetbrains.annotations.NotNull
     private Set<String> excludeFiles = new LinkedHashSet<>();
@@ -88,6 +88,15 @@ public class ProGuardOptions {
     @IgnoreUnused
     public void setObfuscationEnabled(boolean obfuscationEnabled) {
         this.obfuscationEnabled = obfuscationEnabled;
+    }
+
+    public boolean isProguardCollectorEnabled () {
+        return proguardCollectorEnabled;
+    }
+
+    @IgnoreUnused
+    public void setProguardCollectorEnabled (boolean proguardCollectorEnabled) {
+        this.proguardCollectorEnabled = proguardCollectorEnabled;
     }
 
     @NotNull

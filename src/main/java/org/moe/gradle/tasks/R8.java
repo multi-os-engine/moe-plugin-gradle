@@ -72,6 +72,7 @@ public class R8 extends AbstractBaseTask {
     private static final String CONVENTION_MAPPING_FILE = "mappingFile";
     private static final String CONVENTION_MINIFY_ENABLED = "minifyEnabled";
     private static final String CONVENTION_OBFUSCATION_ENABLED = "obfuscationEnabled";
+    private static final String CONVENTION_COLLECTOR_ENABLED = "collectorEnabled";
     private static final String CONVENTION_DEBUG_ENABLED = "debugEnabled";
 
     @Nullable
@@ -229,6 +230,19 @@ public class R8 extends AbstractBaseTask {
     }
 
     @Nullable
+    private Boolean collectorEnabled;
+
+    @IgnoreUnused
+    public void setCollectorEnabled(Boolean collectorEnabled) {
+        this.collectorEnabled = collectorEnabled;
+    }
+
+    @Input
+    public boolean isCollectorEnabled() {
+        return getOrConvention(collectorEnabled, CONVENTION_COLLECTOR_ENABLED);
+    }
+
+    @Nullable
     private Boolean debugEnabled;
 
     @IgnoreUnused
@@ -336,9 +350,11 @@ public class R8 extends AbstractBaseTask {
         startSection(conf, "Appending from " + baseCfgFile);
         conf.append(FileUtils.read(baseCfgFile));
 
-        final File collectedConfig = getProguardCollectTaskDep().getOutCfgFile();
-        startSection(conf, "Appending from " + collectedConfig);
-        conf.append(FileUtils.read(collectedConfig));
+        if (isCollectorEnabled()) {
+            final File collectedConfig = getProguardCollectTaskDep().getOutCfgFile();
+            startSection(conf, "Appending from " + collectedConfig);
+            conf.append(FileUtils.read(collectedConfig));
+        }
 
         startSection(conf, "Shrinking & obfuscation flags");
         if (!isCustomisedBaseConfig()) {
@@ -513,6 +529,7 @@ public class R8 extends AbstractBaseTask {
         addConvention(CONVENTION_LOG_FILE, () -> resolvePathInBuildDir(out, "R8.log"));
         addConvention(CONVENTION_MINIFY_ENABLED, ext.proguard::isMinifyEnabled);
         addConvention(CONVENTION_OBFUSCATION_ENABLED, ext.proguard::isObfuscationEnabled);
+        addConvention(CONVENTION_COLLECTOR_ENABLED, ext.proguard::isProguardCollectorEnabled);
         addConvention(CONVENTION_DEBUG_ENABLED, () -> mode.equals(Mode.DEBUG));
     }
 }

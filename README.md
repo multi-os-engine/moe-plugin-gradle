@@ -180,6 +180,9 @@ moe {
         // whether code obfuscation is enabled. Ignored when `baseCfgFile` is specified. Default to `false`
         obfuscationEnabled = false
 
+        // whether proguard config collector is enabled. Default to `true`
+        proguardCollectorEnabled = true
+
         // exclude files from `-injars` config that will be processed by proguard
         excludeFiles = [
                 'META-INF/*.SF',
