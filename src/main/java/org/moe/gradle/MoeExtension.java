@@ -150,4 +150,9 @@ public class MoeExtension extends AbstractMoeExtension {
         return plugin.getSDK().getPlatformJar(platform);
     }
 
+    @Nullable
+    public File getPlatformDex() {
+        return plugin.getSDK().getPlatformDex(platform);
+    }
+
 }

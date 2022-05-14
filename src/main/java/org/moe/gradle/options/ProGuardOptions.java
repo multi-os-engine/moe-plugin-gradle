@@ -24,8 +24,10 @@ public class ProGuardOptions {
     private int level = LEVEL_APP;
     private boolean minifyEnabled = true;
     private boolean obfuscationEnabled = false;
-    @Nullable
-    private Set<String> excludeFiles;
+    private boolean proguardCollectorEnabled = true;
+    @NotNull
+    @org.jetbrains.annotations.NotNull
+    private Set<String> excludeFiles = new LinkedHashSet<>();
 
     @NotNull
     @IgnoreUnused
@@ -88,20 +90,30 @@ public class ProGuardOptions {
         this.obfuscationEnabled = obfuscationEnabled;
     }
 
-    @Nullable
-    public Collection<String> getExcludeFiles() {
-        return excludeFiles;
+    public boolean isProguardCollectorEnabled () {
+        return proguardCollectorEnabled;
     }
 
     @IgnoreUnused
-    public void setExcludeFiles(@Nullable Collection<String> excludedFiles) {
-        this.excludeFiles = excludedFiles == null ? null : new LinkedHashSet<>(excludedFiles);
+    public void setProguardCollectorEnabled (boolean proguardCollectorEnabled) {
+        this.proguardCollectorEnabled = proguardCollectorEnabled;
     }
 
+    @NotNull
+    @org.jetbrains.annotations.NotNull
+    public Collection<String> getExcludeFiles() {
+        return Require.nonNull(excludeFiles);
+    }
+
+    @IgnoreUnused
+    public void setExcludeFiles(@NotNull @org.jetbrains.annotations.NotNull Collection<String> excludedFiles) {
+        this.excludeFiles = new LinkedHashSet<>(Require.nonNull(excludedFiles));
+    }
+
+    @NotNull
+    @org.jetbrains.annotations.NotNull
+    @IgnoreUnused
     public ProGuardOptions excludeFile(String... names) {
-        if (excludeFiles == null) {
-            excludeFiles = new LinkedHashSet<>();
-        }
         excludeFiles.addAll(Arrays.asList(Require.nonNull(names)));
         return this;
     }

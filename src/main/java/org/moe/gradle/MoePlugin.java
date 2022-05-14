@@ -28,15 +28,14 @@ import org.moe.gradle.anns.NotNull;
 import org.moe.gradle.anns.Nullable;
 import org.moe.gradle.remote.Server;
 import org.moe.gradle.tasks.AbstractBaseTask;
-import org.moe.gradle.tasks.Desugar;
-import org.moe.gradle.tasks.Dex;
+import org.moe.gradle.tasks.ProguardCollect;
 import org.moe.gradle.tasks.Dex2Oat;
 import org.moe.gradle.tasks.ClassValidate;
 import org.moe.gradle.tasks.GenerateUIObjCInterfaces;
 import org.moe.gradle.tasks.IpaBuild;
 import org.moe.gradle.tasks.Launchers;
 import org.moe.gradle.tasks.NatJGen;
-import org.moe.gradle.tasks.ProGuard;
+import org.moe.gradle.tasks.R8;
 import org.moe.gradle.tasks.ResourcePackager;
 import org.moe.gradle.tasks.StartupProvider;
 import org.moe.gradle.tasks.TestClassesProvider;
@@ -136,13 +135,11 @@ public class MoePlugin extends AbstractMoePlugin {
         installCommonDependencies();
 
         // Install rules
-        addRule(ProGuard.class, "Creates a ProGuarded jar.",
+        addRule(R8.class, "Shrinks/obfuscates app and produces dex files.",
                 asList(SOURCE_SET, MODE), MoePlugin.this);
-        addRule(Desugar.class, "Creates a desugared jar.",
-                asList(SOURCE_SET, MODE), MoePlugin.this);
+        addRule(ProguardCollect.class, "Generate code specific proguard keep configs.",
+               asList(SOURCE_SET, MODE), MoePlugin.this);
         addRule(ClassValidate.class, "Validate classes.",
-                asList(SOURCE_SET, MODE), MoePlugin.this);
-        addRule(Dex.class, "Creates a Dexed jar.",
                 asList(SOURCE_SET, MODE), MoePlugin.this);
         addRule(Dex2Oat.class, "Creates art and oat files.",
                 asList(SOURCE_SET, MODE, ARCH_FAMILY), MoePlugin.this);

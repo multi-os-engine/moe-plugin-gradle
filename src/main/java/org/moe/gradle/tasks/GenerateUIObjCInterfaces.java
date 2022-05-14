@@ -245,14 +245,14 @@ public class GenerateUIObjCInterfaces extends AbstractBaseTask {
         setDescription("Generates header files for Interface Builder");
 
         // Add dependencies
-        final ProGuard proguardTask = getMoePlugin().getTaskBy(ProGuard.class, sourceSet, mode);
-        dependsOn(proguardTask);
+        final ClassValidate classValidateTask = getMoePlugin().getTaskBy(ClassValidate.class, sourceSet, mode);
+        dependsOn(classValidateTask);
 
         // Update convention mapping
         addConvention(CONVENTION_INPUT_FILES, () -> {
             final ArrayList<Object> files = new ArrayList<>();
-            files.add(proguardTask.getOutJar());
-            if (getMoeExtension().proguard.getLevelRaw() == ProGuardOptions.LEVEL_APP) {
+            files.addAll(classValidateTask.getOutputJars().getFiles());
+            if (getMoeExtension().proguard.getLevelRaw() != ProGuardOptions.LEVEL_ALL) {
                 files.add(getMoeExtension().getPlatformJar());
             }
             return files;

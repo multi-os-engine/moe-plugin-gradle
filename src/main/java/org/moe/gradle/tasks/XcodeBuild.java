@@ -423,25 +423,20 @@ public class XcodeBuild extends AbstractBaseTask {
                 final Dex2Oat dex2OatTask = xcodeProvider.getDex2OatTaskDep();
                 excludes.add(dex2OatTask.getLogFile());
 
-                final Dex dexTask = dex2OatTask.getDexTaskDep();
-                excludes.add(dexTask.getDestJar());
-                excludes.add(dexTask.getLogFile());
+                final R8 r8Task = dex2OatTask.getR8TaskDep();
+                excludes.add(r8Task.getOutJar());
+                excludes.add(r8Task.getComposedCfgFile());
+                excludes.add(r8Task.getLogFile());
 
-                final ClassValidate classValidateTask = dexTask.getClassValidateTaskDep();
+                final ProguardCollect proguardCollectTask = r8Task.getProguardCollectTaskDep();
+                excludes.add(proguardCollectTask.getOutCfgFile());
+                excludes.add(proguardCollectTask.getLogFile());
+
+                final ClassValidate classValidateTask = r8Task.getClassValidateTaskDep();
                 excludes.add(classValidateTask.getOutputDir());
                 excludes.add(classValidateTask.getLogFile());
 
-                final Desugar desugarTask = classValidateTask.getDesugarTaskDep();
-                excludes.add(desugarTask.getOutJar());
-                excludes.add(desugarTask.getComposedCfgFile());
-                excludes.add(desugarTask.getLogFile());
-
-                final ProGuard proGuardTask = desugarTask.getProGuardTaskDep();
-                excludes.add(proGuardTask.getOutJar());
-                excludes.add(proGuardTask.getComposedCfgFile());
-                excludes.add(proGuardTask.getLogFile());
-
-                final JavaCompile classesTask = proGuardTask.getJavaCompileTaskDep();
+                final JavaCompile classesTask = classValidateTask.getJavaCompileTaskDep();
                 if (classesTask != null) {
                     excludes.add(classesTask.getDestinationDir());
                 }

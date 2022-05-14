@@ -131,7 +131,6 @@ The SDK's structure must be as follows, otherwise the validation will fail:
 |  \- iphonesimulator/MOE.framework
 \- tools
    +- dex2oat
-   +- dx.jar
    +- ios-device.jar
    +- java8support.jar
    +- macosx/lib(clang|imobiledevice|natj).dylib
@@ -179,6 +178,9 @@ moe {
       
         // whether code obfuscation is enabled. Ignored when `baseCfgFile` is specified. Default to `false`
         obfuscationEnabled = false
+
+        // whether proguard config collector is enabled. Default to `true`
+        proguardCollectorEnabled = true
 
         // exclude files from `-injars` config that will be processed by proguard
         excludeFiles = [
@@ -370,26 +372,6 @@ Java 8 class files.
 - `natjSupport`: boolean passed to Retrolambda via `-Dretrolambda.natjSupport`.
 - `expandedClassesDir`: path to a temporary directory, where the input class files are collected.
 - `outputDir`: path to a directory containing the processed class files.
-- `logFile`: path to the task's log file.
-
-Setting any of these properties to null will reset them to their default values.
-
----
-
-### Dex Task
-
-Task name: `moe<sourceset><mode>Dex`
-
-We need to create a dex file from the proguarded jar which we can later on convert to art and oat files. This task is
-responsible for that. The result of this task is a `classes.jar` file which can be found in the build directory and
-detailed information can be found in the `dx.log` file.
-
-#### Task Properties
-
-- `dxJar`: path to the `dx.jar` file.
-- `inputFiles`: collection of paths to files being passed to Dex.
-- `extraArgs`: extra arguments passed to Dex.
-- `destJar`: path to the jar file produced by dex.
 - `logFile`: path to the task's log file.
 
 Setting any of these properties to null will reset them to their default values.

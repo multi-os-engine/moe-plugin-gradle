@@ -25,11 +25,13 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SourceSet;
 import org.moe.common.utils.NativeUtil;
+import org.moe.gradle.MoeExtension;
 import org.moe.gradle.MoePlugin;
 import org.moe.gradle.MoeSDK;
 import org.moe.gradle.anns.IgnoreUnused;
 import org.moe.gradle.anns.NotNull;
 import org.moe.gradle.anns.Nullable;
+import org.moe.gradle.options.ProGuardOptions;
 import org.moe.gradle.remote.Server;
 import org.moe.gradle.remote.file.FileList;
 import org.moe.gradle.utils.Arch;
@@ -310,12 +312,12 @@ public class Dex2Oat extends AbstractBaseTask {
         }
     }
 
-    private Dex dexTaskDep;
+    private R8 r8TaskDep;
 
     @NotNull
     @Internal
-    public Dex getDexTaskDep() {
-        return Require.nonNull(dexTaskDep);
+    public R8 getR8TaskDep() {
+        return Require.nonNull(r8TaskDep);
     }
 
     @NotNull
@@ -326,6 +328,7 @@ public class Dex2Oat extends AbstractBaseTask {
 
         setSupportsRemoteBuild(true);
 
+        final MoeExtension ext = getMoeExtension();
         final MoeSDK sdk = getMoeSDK();
 
         // Construct default output path
@@ -335,9 +338,9 @@ public class Dex2Oat extends AbstractBaseTask {
                 ", arch-family: " + archFamily + ").");
 
         // Add dependencies
-        final Dex dexTask = getMoePlugin().getTaskBy(Dex.class, sourceSet, mode);
-        dexTaskDep = dexTask;
-        dependsOn(dexTask);
+        final R8 r8Task = getMoePlugin().getTaskBy(R8.class, sourceSet, mode);
+        r8TaskDep = r8Task;
+        dependsOn(r8Task);
 
         // Update convention mapping
         addConvention(CONVENTION_DEX2OAT_EXEC, sdk::getDex2OatExec);
@@ -359,7 +362,24 @@ public class Dex2Oat extends AbstractBaseTask {
         addConvention(CONVENTION_EMIT_DEBUG_INFO, () -> mode == Mode.DEBUG);
         addConvention(CONVENTION_INPUT_FILES, () -> {
             final Set<File> files = new HashSet<>();
-            files.add(dexTask.getDestJar());
+            files.add(r8Task.getOutJar());
+            switch (ext.proguard.getLevelRaw()) {
+            case ProGuardOptions.LEVEL_APP:
+                files.add(sdk.getCoreDex());
+                if (ext.getPlatformDex() != null) {
+                    files.add(ext.getPlatformDex());
+                }
+                files.add(sdk.getDesugaredLibDex());
+                break;
+            case ProGuardOptions.LEVEL_PLATFORM:
+                files.add(sdk.getCoreDex());
+                files.add(sdk.getDesugaredLibDex());
+                break;
+            case ProGuardOptions.LEVEL_ALL:
+                break;
+            default:
+                throw new IllegalStateException();
+            }
             return files;
         });
         addConvention(CONVENTION_COMPILER_BACKEND, () -> BACKEND_QUICK);

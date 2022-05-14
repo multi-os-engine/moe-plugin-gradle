@@ -19,6 +19,7 @@ package org.moe.gradle.tasks;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Jar;
 import org.moe.gradle.MoeExtension;
@@ -92,43 +93,36 @@ public class ResourcePackager {
         resourcePackagerTask.setGroup(MoePlugin.MOE);
         resourcePackagerTask.setDescription("Generates application file (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
-        // Add dependencies
-        final ProGuard proguardTask = plugin.getTaskBy(ProGuard.class, sourceSet, mode);
-        resourcePackagerTask.dependsOn(proguardTask);
-
+        final R8 r8Task = plugin.getTaskBy(R8.class, sourceSet, mode);
+        resourcePackagerTask.dependsOn(r8Task);
         // Update settings
         resourcePackagerTask.setDestinationDir(project.file(project.getBuildDir().toPath().resolve(out).toFile()));
         resourcePackagerTask.setArchiveName("application.jar");
-        resourcePackagerTask.from(project.zipTree(proguardTask.getOutJar()));
+
+        resourcePackagerTask.exclude("*.dex");
         resourcePackagerTask.exclude("**/*.class");
+        resourcePackagerTask.setIncludeEmptyDirs(false);
 
-        project.afterEvaluate(_project -> {
-            // When using full trim, ProGuard will copy the the resources from the common jar
-            switch (ext.proguard.getLevelRaw()) {
-                case ProGuardOptions.LEVEL_APP:
-                    resourcePackagerTask.from(_project.zipTree(sdk.getCoreJar()));
-                    if (ext.getPlatformJar() != null){
-                        resourcePackagerTask.from(_project.zipTree(ext.getPlatformJar()));
-                    }
-                    break;
-                case ProGuardOptions.LEVEL_PLATFORM:
-                    resourcePackagerTask.from(_project.zipTree(sdk.getCoreJar()));
-                    break;
-                case ProGuardOptions.LEVEL_ALL:
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
+        resourcePackagerTask.from(project.zipTree(r8Task.getOutJar()));
+        resourcePackagerTask.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 
-            ext.packaging.getExcludes().forEach(resourcePackagerTask::exclude);
+        switch (ext.proguard.getLevelRaw()) {
+            case ProGuardOptions.LEVEL_APP:
+                resourcePackagerTask.from(project.zipTree(sdk.getCoreJar()));
+                if (ext.getPlatformJar() != null){
+                    resourcePackagerTask.from(project.zipTree(ext.getPlatformJar()));
+                }
+                break;
+            case ProGuardOptions.LEVEL_PLATFORM:
+                resourcePackagerTask.from(project.zipTree(sdk.getCoreJar()));
+                break;
+            case ProGuardOptions.LEVEL_ALL:
+                break;
+            default:
+                throw new IllegalStateException();
+        }
 
-            // Add support for copying resources from the source directory
-            addResourceFromSources(ext, resourcePackagerTask, sourceSet);
-            if (SourceSet.TEST_SOURCE_SET_NAME.equals(sourceSet.getName())) {
-                SourceSet main = plugin.getJavaConvention().getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-                addResourceFromSources(ext, resourcePackagerTask, main);
-            }
-        });
+        ext.packaging.getExcludes().forEach(resourcePackagerTask::exclude);
 
         return resourcePackagerTask;
     }
