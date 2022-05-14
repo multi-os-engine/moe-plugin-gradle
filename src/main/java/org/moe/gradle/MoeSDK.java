@@ -349,14 +349,19 @@ public class MoeSDK {
 
         try {
             validate(DIR, path, "");
+            validate(FIL, path, "sdk/moe-desugared-dex.jar");
+            validate(FIL, path, "sdk/moe-desugared-lib.json");
+            validate(FIL, path, "sdk/moe-core-dex.jar");
             validate(FIL, path, "sdk/moe-core.jar");
             validate(FIL, path, "sdk/moe-core-javadoc.jar");
             validate(FIL, path, "sdk/moe-core-sources.jar");
 
+            validate(FIL, path, "sdk/moe-ios-junit-dex.jar");
             validate(FIL, path, "sdk/moe-ios-junit.jar");
             validate(FIL, path, "sdk/moe-ios-junit-javadoc.jar");
             validate(FIL, path, "sdk/moe-ios-junit-sources.jar");
 
+            validate(FIL, path, "sdk/moe-ios-dex.jar");
             validate(FIL, path, "sdk/moe-ios.jar");
             validate(FIL, path, "sdk/moe-ios-javadoc.jar");
             validate(FIL, path, "sdk/moe-ios-sources.jar");
@@ -367,7 +372,6 @@ public class MoeSDK {
             }
 
             validate(FIL | EXE, path, "tools/dex2oat");
-            validate(FIL, path, "tools/dx.jar");
             validate(FIL, path, "tools/ios-device.jar");
             validate(FIL, path, "tools/java8support.jar");
             validate(DIR, path, "tools/macosx");
@@ -407,14 +411,20 @@ public class MoeSDK {
     private @Nullable File MOE_SDK_ROOT;
     private @Nullable File MOE_SDK_SDK_DIR;
     private @Nullable File MOE_SDK_TOOLS_DIR;
+
+    private @Nullable File MOE_SDK_DESUGARED_LIB_JSON;
+    private @Nullable File MOE_SDK_DESUGARED_DEX;
     private @Nullable File MOE_SDK_CORE_JAR;
+    private @Nullable File MOE_SDK_CORE_DEX;
     private @Nullable File MOE_SDK_CORE_SOURCES_JAR;
     private @Nullable File MOE_SDK_CORE_JAVADOC_JAR;
     private @Nullable File MOE_SDK_IOS_JAVADOC_JAR;
     private @Nullable File MOE_SDK_IOS_JUNIT_JAR;
+    private @Nullable File MOE_SDK_IOS_JUNIT_DEX;
     private @Nullable File MOE_SDK_IOS_JUNIT_SOURCES_JAR;
     private @Nullable File MOE_SDK_IOS_JUNIT_JAVADOC_JAR;
     private @Nullable File MOE_SDK_IOS_JAR;
+    private @Nullable File MOE_SDK_IOS_DEX;
     private @Nullable File MOE_SDK_IOS_SOURCES_JAR;
     private @Nullable File MOE_SDK_DEX2OAT_EXEC;
     private @Nullable File MOE_SDK_DX_JAR;
@@ -433,13 +443,18 @@ public class MoeSDK {
         MOE_SDK_ROOT = path.toFile();
         MOE_SDK_SDK_DIR = path.resolve("sdk").toFile();
         MOE_SDK_TOOLS_DIR = path.resolve("tools").toFile();
+        MOE_SDK_DESUGARED_LIB_JSON = path.resolve("sdk/moe-desugared-lib.json").toFile();
+        MOE_SDK_DESUGARED_DEX = path.resolve("sdk/moe-desugared-dex.jar").toFile();
         MOE_SDK_CORE_JAR = path.resolve("sdk/moe-core.jar").toFile();
+        MOE_SDK_CORE_DEX = path.resolve("sdk/moe-core-dex.jar").toFile();
         MOE_SDK_CORE_SOURCES_JAR = path.resolve("sdk/moe-core-sources.jar").toFile();
         MOE_SDK_CORE_JAVADOC_JAR = path.resolve("sdk/moe-core-javadoc.jar").toFile();
         MOE_SDK_IOS_JAR = path.resolve("sdk/moe-ios.jar").toFile();
+        MOE_SDK_IOS_DEX = path.resolve("sdk/moe-ios-dex.jar").toFile();
         MOE_SDK_IOS_SOURCES_JAR = path.resolve("sdk/moe-ios-sources.jar").toFile();
         MOE_SDK_IOS_JAVADOC_JAR = path.resolve("sdk/moe-ios-javadoc.jar").toFile();
         MOE_SDK_IOS_JUNIT_JAR = path.resolve("sdk/moe-ios-junit.jar").toFile();
+        MOE_SDK_IOS_JUNIT_DEX = path.resolve("sdk/moe-ios-junit-dex.jar").toFile();
         MOE_SDK_IOS_JUNIT_SOURCES_JAR = path.resolve("sdk/moe-ios-junit-sources.jar").toFile();
         MOE_SDK_IOS_JUNIT_JAVADOC_JAR = path.resolve("sdk/moe-ios-junit-javadoc.jar").toFile();
         MOE_SDK_DEX2OAT_EXEC = path.resolve("tools/dex2oat").toFile();
@@ -473,6 +488,15 @@ public class MoeSDK {
     }
 
     @NotNull
+    public File getDesugaredLibJson() {
+        return safeVariable(MOE_SDK_DESUGARED_LIB_JSON, "MOE_SDK_DESUGARED_LIB_JSON");
+    }
+    @NotNull
+    public File getDesugaredLibDex() {
+        return safeVariable(MOE_SDK_DESUGARED_DEX, "MOE_SDK_DESUGARED_DEX");
+    }
+
+    @NotNull
     public File getCoreJar() {
         return safeVariable(MOE_SDK_CORE_JAR, "MOE_SDK_CORE_JAR");
     }
@@ -487,6 +511,11 @@ public class MoeSDK {
     @IgnoreUnused
     public File getCoreSourcesJar() {
         return safeVariable(MOE_SDK_CORE_SOURCES_JAR, "MOE_SDK_CORE_SOURCES_JAR");
+    }
+
+    @NotNull
+    public File getCoreDex() {
+        return safeVariable(MOE_SDK_CORE_DEX, "MOE_SDK_CORE_DEX");
     }
 
     @NotNull
@@ -519,8 +548,19 @@ public class MoeSDK {
     }
 
     @NotNull
+    @IgnoreUnused
+    public File getiOSJUnitDex() {
+        return safeVariable(MOE_SDK_IOS_JUNIT_DEX, "MOE_SDK_IOS_JUNIT_DEX");
+    }
+
+    @NotNull
     private File getiOSJar() {
         return safeVariable(MOE_SDK_IOS_JAR, "MOE_SDK_IOS_JAR");
+    }
+
+    @NotNull
+    private File getiOSDex() {
+        return safeVariable(MOE_SDK_IOS_DEX, "MOE_SDK_IOS_DEX");
     }
 
     @NotNull
@@ -594,6 +634,13 @@ public class MoeSDK {
         throw new GradleException("platform jar is unsupported for " + platform.displayName);
     }
 
+    @NotNull
+    public File getPlatformDex(final @NotNull MoePlatform platform) {
+        if (platform == MoePlatform.IOS) {
+            return getiOSDex();
+        }
+        throw new GradleException("platform dex is unsupported for " + platform.displayName);
+    }
     @NotNull
     private static <T> T safeVariable(@Nullable T variable, @NotNull String name) {
         return Require.nonNull(variable, "Unable to access MOE SDK variable '" + name + "'");

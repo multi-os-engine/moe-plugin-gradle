@@ -74,6 +74,7 @@ public class R8 extends AbstractBaseTask {
     private static final String CONVENTION_OBFUSCATION_ENABLED = "obfuscationEnabled";
     private static final String CONVENTION_COLLECTOR_ENABLED = "collectorEnabled";
     private static final String CONVENTION_DEBUG_ENABLED = "debugEnabled";
+    private static final String CONVENTION_DESUGAR_CONFIG = "desugarConfig";
 
     @Nullable
     private Object r8Jar;
@@ -256,6 +257,22 @@ public class R8 extends AbstractBaseTask {
     }
 
     @Nullable
+    private File desugarConfig;
+
+    @IgnoreUnused
+    public void setDesugarConfig(@Nullable File desugarConfig) {
+        this.desugarConfig = desugarConfig;
+    }
+
+    @InputFile
+    @Nullable
+    @Optional
+    public File getDesugarConfig() {
+        Object f = nullableGetOrConvention(desugarConfig, CONVENTION_DESUGAR_CONFIG);
+        return f == null ? null : getProject().file(f);
+    }
+
+    @Nullable
     private Object mappingFile;
 
     @OutputFile
@@ -290,6 +307,9 @@ public class R8 extends AbstractBaseTask {
 
         composeConfigurationFile();
         ArrayList<Object> args = new ArrayList<>(Arrays.asList(getR8Jar().getAbsolutePath(), "--min-api", "21", "--output", getOutJar().getAbsolutePath()));
+        if (getDesugarConfig() != null) {
+            args.addAll(Arrays.asList("--desugared-lib", getDesugarConfig().getAbsolutePath()));
+        }
         args.addAll(Arrays.asList("--pg-compat", "--pg-conf", getComposedCfgFile().getAbsolutePath()));
         if (isDebugEnabled()) {
             args.add("--debug");
@@ -484,7 +504,7 @@ public class R8 extends AbstractBaseTask {
             switch (ext.proguard.getLevelRaw()) {
                 case ProGuardOptions.LEVEL_APP:
                 case ProGuardOptions.LEVEL_PLATFORM:
-                    return sdk.getProguardFullCfg();
+                    return sdk.getProguardCfg();
                 case ProGuardOptions.LEVEL_ALL:
                     return sdk.getProguardFullCfg();
                 default:
@@ -503,24 +523,45 @@ public class R8 extends AbstractBaseTask {
             return null; // This is an optional convention.
         });
         addConvention(CONVENTION_IN_JARS, () -> {
-            final HashSet<Object> jars = new LinkedHashSet<>();
-            jars.addAll(classValidateTask.getOutputJars().getFiles());
-            jars.add(getMoeSDK().getCoreJar());
-            jars.add(getMoeExtension().getPlatformJar());
+            final HashSet<Object> jars = new LinkedHashSet<>(classValidateTask.getOutputJars().getFiles());
 
-            jars.add(sdk.getJava8SupportJar());
-
+            switch (ext.proguard.getLevelRaw()) {
+            case ProGuardOptions.LEVEL_APP:
+                break;
+            case ProGuardOptions.LEVEL_PLATFORM:
+                if (ext.getPlatformJar() != null) {
+                    jars.add(ext.getPlatformJar());
+                }
+                break;
+            case ProGuardOptions.LEVEL_ALL:
+                jars.add(sdk.getCoreJar());
+                if (ext.getPlatformJar() != null) {
+                    jars.add(ext.getPlatformJar());
+                }
+                break;
+            default:
+                throw new IllegalStateException();
+            }
             return jars;
         });
         addConvention(CONVENTION_EXCLUDE_FILES, ext.proguard::getExcludeFiles);
         addConvention(CONVENTION_LIBRARY_JARS, () -> {
-            final HashSet<Object> jars = new LinkedHashSet<>(
-                // Make JDK runtime libraries available for ProGuard
-                // because we no longer have all basic runtime classes in core jar.
-            );
-            //jars.add(getMoeSDK().getCoreJar());
-            //jars.add(getMoeExtension().getPlatformJar());
-            //jars.add(sdk.getJava8SupportJar());
+            final HashSet<Object> jars = new LinkedHashSet<>();
+            switch (ext.proguard.getLevelRaw()) {
+            case ProGuardOptions.LEVEL_APP:
+                jars.add(sdk.getCoreJar());
+                if (ext.getPlatformJar() != null) {
+                    jars.add(ext.getPlatformJar());
+                }
+                break;
+            case ProGuardOptions.LEVEL_PLATFORM:
+                jars.add(sdk.getCoreJar());
+                break;
+            case ProGuardOptions.LEVEL_ALL:
+                break;
+            default:
+                throw new IllegalStateException();
+            }
             return jars;
         });
         addConvention(CONVENTION_OUT_JAR, () -> resolvePathInBuildDir(out, "output.jar"));
@@ -531,5 +572,11 @@ public class R8 extends AbstractBaseTask {
         addConvention(CONVENTION_OBFUSCATION_ENABLED, ext.proguard::isObfuscationEnabled);
         addConvention(CONVENTION_COLLECTOR_ENABLED, ext.proguard::isProguardCollectorEnabled);
         addConvention(CONVENTION_DEBUG_ENABLED, () -> mode.equals(Mode.DEBUG));
+        addConvention(CONVENTION_DESUGAR_CONFIG, () -> {
+            if (ext.proguard.getLevelRaw() == ProGuardOptions.LEVEL_ALL) {
+                return null;
+            }
+            return sdk.getDesugaredLibJson();
+        });
     }
 }

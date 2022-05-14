@@ -151,17 +151,8 @@ open class ClassValidate : AbstractBaseTask() {
         }
         addConvention(CONVENTION_CLASSPATH_FILES) {
             mutableSetOf<Any>().also { jars ->
-                when (moeExtension.proguard.levelRaw) {
-                    ProGuardOptions.LEVEL_APP -> {
-                        jars.add(moeSDK.coreJar)
-                        moeExtension.platformJar?.let(jars::add)
-                    }
-                    ProGuardOptions.LEVEL_PLATFORM -> {
-                        jars.add(moeSDK.coreJar)
-                    }
-                    ProGuardOptions.LEVEL_ALL -> {}
-                    else -> throw IllegalStateException()
-                }
+                jars.add(moeSDK.coreJar)
+                moeExtension.platformJar?.let(jars::add)
             }
         }
         addConvention(CONVENTION_OUTPUT_DIR) { resolvePathInBuildDir(out, "output") }
