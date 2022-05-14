@@ -427,7 +427,6 @@ public class MoeSDK {
     private @Nullable File MOE_SDK_IOS_DEX;
     private @Nullable File MOE_SDK_IOS_SOURCES_JAR;
     private @Nullable File MOE_SDK_DEX2OAT_EXEC;
-    private @Nullable File MOE_SDK_DX_JAR;
     private @Nullable File MOE_SDK_IOS_DEVICE_JAR;
     private @Nullable File MOE_SDK_JAVA8SUPPORT_JAR;
     private @Nullable File MOE_SDK_MACOS_SUPPORT;
@@ -458,7 +457,6 @@ public class MoeSDK {
         MOE_SDK_IOS_JUNIT_SOURCES_JAR = path.resolve("sdk/moe-ios-junit-sources.jar").toFile();
         MOE_SDK_IOS_JUNIT_JAVADOC_JAR = path.resolve("sdk/moe-ios-junit-javadoc.jar").toFile();
         MOE_SDK_DEX2OAT_EXEC = path.resolve("tools/dex2oat").toFile();
-        MOE_SDK_DX_JAR = path.resolve("tools/dx.jar").toFile();
         MOE_SDK_IOS_DEVICE_JAR = path.resolve("tools/ios-device.jar").toFile();
         MOE_SDK_JAVA8SUPPORT_JAR = path.resolve("tools/java8support.jar").toFile();
         MOE_SDK_MACOS_SUPPORT = path.resolve("tools/macosx").toFile();
@@ -566,11 +564,6 @@ public class MoeSDK {
     @NotNull
     public File getDex2OatExec() {
         return safeVariable(MOE_SDK_DEX2OAT_EXEC, "MOE_SDK_DEX2OAT_EXEC");
-    }
-
-    @NotNull
-    public File getDxJar() {
-        return safeVariable(MOE_SDK_DX_JAR, "MOE_SDK_DX_JAR");
     }
 
     @NotNull
