@@ -340,7 +340,7 @@ information about what got stripped can be found in the `proguard.log` file whic
 
 #### Task Properties
 
-- `proGuardJar`: path to the `proguard.jar` file.
+- `r8Jar`: path to the `proguard.jar` file.
 - `baseCfgFile`: path to the base configuration file.
 - `appendCfgFile`: null or path to to appended configuration file.
 - `minifyEnabled`: whether code minification is enabled. Ignored when `baseCfgFile` is specified.

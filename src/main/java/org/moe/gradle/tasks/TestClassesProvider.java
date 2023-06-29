@@ -390,13 +390,13 @@ public class TestClassesProvider extends AbstractBaseTask {
         }
     }
 
-    private ProGuard proGuardTaskDep;
+    private R8 r8TaskDep;
 
     @NotNull
     @IgnoreUnused
     @Internal
-    public ProGuard getProGuardTaskDep() {
-        return Require.nonNull(proGuardTaskDep);
+    public R8 getProGuardTaskDep() {
+        return Require.nonNull(r8TaskDep);
     }
 
     protected final void setupMoeTask(@NotNull SourceSet sourceSet, final @NotNull Mode mode) {
@@ -411,8 +411,8 @@ public class TestClassesProvider extends AbstractBaseTask {
         setDescription("Generates classlist.txt file (sourceset: " + sourceSet.getName() + ", mode: " + mode.name + ").");
 
         // Add dependencies
-        final ProGuard proguardTask = getMoePlugin().getTaskBy(ProGuard.class, sourceSet, mode);
-        proGuardTaskDep = proguardTask;
+        final R8 proguardTask = getMoePlugin().getTaskBy(R8.class, sourceSet, mode);
+        r8TaskDep = proguardTask;
         dependsOn(proguardTask);
 
         if (!SourceSet.MAIN_SOURCE_SET_NAME.equals(sourceSet.getName())

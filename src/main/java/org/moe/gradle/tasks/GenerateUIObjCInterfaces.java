@@ -244,7 +244,7 @@ public class GenerateUIObjCInterfaces extends AbstractBaseTask {
         setDescription("Generates header files for Interface Builder");
 
         // Add dependencies
-        final ProGuard proguardTask = getMoePlugin().getTaskBy(ProGuard.class, sourceSet, mode);
+        final R8 proguardTask = getMoePlugin().getTaskBy(R8.class, sourceSet, mode);
         dependsOn(proguardTask);
 
         // Update convention mapping
