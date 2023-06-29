@@ -11,6 +11,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.moe.gradle.MoePlugin
 import org.moe.gradle.anns.IgnoreUnused
@@ -63,26 +64,31 @@ open class ClassValidate : AbstractBaseTask() {
         this.outputDir = outputDir
     }
 
-    val classesOutputDir: File
+    val outputJars: ConfigurableFileCollection
         @Internal
-        get() = getOutputDir().resolve(ClassValidator.OUTPUT_CLASSES)
+        get() = project.files(getOutputDir().listFiles())
 
     override fun run() {
         // Clean output dir
         FileUtils.deleteFileOrFolder(getOutputDir())
 
+        project.copy {  }
+
+        val inputFiles = getInputFiles().filter {it.isFile}.map {
+            it.copyTo(getOutputDir().resolve(it.name))
+        }
+
         // Run class validator
         ClassValidator.process(
-            inputFiles = getInputFiles().toSet(),
+            inputFiles = inputFiles.toSet(),
             classpath = getClasspathFiles().toSet()
                 // Add input to classpath
-                + getInputFiles().toSet(),
-            outputDir = getOutputDir().absoluteFile.toPath(),
+                + getInputFiles().toSet()
         )
     }
 
     @get:Internal
-    lateinit var classesTaskDep: Task
+    lateinit var jarTaskDep: Jar
         private set
 
     @get:Internal
@@ -125,8 +131,8 @@ open class ClassValidate : AbstractBaseTask() {
         } else {
             throw GradleException("Unsupported SourceSet ${sourceSet.name}")
         }
-        classesTaskDep = project.tasks.getByName(classesTaskName)
-        dependsOn(classesTaskDep)
+        jarTaskDep = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME) as Jar
+        dependsOn(jarTaskDep)
 
         javaCompileTaskDep = moePlugin.getTaskByName(compileJavaTaskName)
         // TODO: allow higher than 1.8
@@ -140,7 +146,10 @@ open class ClassValidate : AbstractBaseTask() {
         // Update convention mapping
         addConvention(CONVENTION_INPUT_FILES) {
             sourceSet.runtimeClasspath.files.toMutableSet().also { jars ->
-
+                jars.removeIf {
+                    it.isDirectory
+                }
+                jars.add(jarTaskDep.archiveFile.get().asFile)
                 jars.remove(moeSDK.coreJar)
                 jars.remove(moeExtension.platformJar)
 
