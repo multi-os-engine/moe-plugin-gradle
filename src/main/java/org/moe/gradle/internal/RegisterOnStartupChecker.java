@@ -117,7 +117,7 @@ public class RegisterOnStartupChecker {
         } catch (IOException e) {
             throw new GradleException("Failed to create ClassReader", e);
         }
-        reader.accept(new ClassVisitor(Opcodes.ASM5) {
+        reader.accept(new ClassVisitor(Opcodes.ASM9) {
 
             private boolean isObjCBinding = false;
             private String objCClassName = null;
@@ -133,7 +133,7 @@ public class RegisterOnStartupChecker {
                         isObjCBinding = true;
                         break;
                     case ANN_OBJC_CLASS_NAME:
-                        av = new AnnotationVisitor(Opcodes.ASM5, av) {
+                        av = new AnnotationVisitor(Opcodes.ASM9, av) {
                             @Override
                             public void visit(String name, Object value) {
                                 if ("value".equals(name)) {
@@ -163,16 +163,6 @@ public class RegisterOnStartupChecker {
                     RegisterOnStartupChecker.this.objCClassName = objCClassName;
                 }
                 super.visitEnd();
-            }
-
-            public void visitNestHost(String nestHost) {
-                // Do nothing
-                // Fix error "NestHost requires ASM7" without the need of updating to ASM7
-            }
-
-            public void visitNestMember(String nestMember) {
-                // Do nothing
-                // Fix error "NestMember requires ASM7" without the need of updating to ASM7
             }
         }, 0);
     }
