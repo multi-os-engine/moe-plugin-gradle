@@ -301,6 +301,7 @@ public class R8 extends AbstractBaseTask {
             args.add("--release");
         }
         javaexec(spec -> {
+            spec.setExecutable(getMoePlugin().getGraalVM().getJavaPath().toFile().getAbsolutePath());
             spec.setMain("-jar");
             spec.args(args.toArray());
         });
