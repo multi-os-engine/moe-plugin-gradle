@@ -85,6 +85,19 @@ public class MoePlugin extends AbstractMoePlugin {
 
     @NotNull
     public GraalVM getGraalVM() {
+        if (graalVM == null) {
+            if (PropertiesUtil.tryGetProperty(getProject(), MOE_GRAALVM_HOME_PROPERTY) != null) {
+                graalVM = new GraalVM(Paths.get(PropertiesUtil.getProperty(getProject(), MOE_GRAALVM_HOME_PROPERTY)));
+            } else {
+                JavaToolchainService toolchains = getProject().getExtensions().getByType(JavaToolchainService.class);
+                JavaLauncher launcher = toolchains.launcherFor(spec -> {
+                    spec.getLanguageVersion().set(JavaLanguageVersion.of(GraalVM.SUPPORTED_JAVA_MAJOR));
+                    spec.getVendor().set(JvmVendorSpec.GRAAL_VM);
+                    spec.getImplementation().set(JvmImplementation.VENDOR_SPECIFIC);
+                }).get();
+                graalVM = new GraalVM(launcher.getExecutablePath().getAsFile().getParentFile().getParentFile().toPath());
+            }
+        }
         return Require.nonNull(graalVM, "The plugin's 'graalVM' property was null");
     }
 
@@ -121,18 +134,6 @@ public class MoePlugin extends AbstractMoePlugin {
     @Override
     public void apply(Project project) {
         super.apply(project);
-
-        if (PropertiesUtil.tryGetProperty(project, MOE_GRAALVM_HOME_PROPERTY) != null) {
-            graalVM = new GraalVM(Paths.get(PropertiesUtil.getProperty(project, MOE_GRAALVM_HOME_PROPERTY)));
-        } else {
-            JavaToolchainService toolchains = project.getExtensions().getByType(JavaToolchainService.class);
-            JavaLauncher launcher = toolchains.launcherFor(spec -> {
-                spec.getLanguageVersion().set(JavaLanguageVersion.of(GraalVM.SUPPORTED_JAVA_MAJOR));  // Set as per your GraalVM version
-                spec.getVendor().set(JvmVendorSpec.GRAAL_VM);
-                spec.getImplementation().set(JvmImplementation.VENDOR_SPECIFIC);
-            }).get();
-            graalVM = new GraalVM(launcher.getExecutablePath().getAsFile().getParentFile().getParentFile().toPath());
-        }
 
         // Setup explicit archs
         String archsProp = PropertiesUtil.tryGetProperty(project, MOE_ARCHS_PROPERTY);
